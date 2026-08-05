@@ -1,0 +1,223 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Task API",
+    "version": "1.0",
+    "description": "OpenAPI specification matching the Express Task API implementation."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local server"
+    }
+  ],
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "API Info",
+        "description": "Returns basic API name, version, and endpoints list.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "example": {
+                  "name": "Task API",
+                  "version": "1.0",
+                  "endpoints": ["/tasks"]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "Server health status",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "ok"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tasks": {
+      "get": {
+        "summary": "List all tasks",
+        "responses": {
+          "200": {
+            "description": "Object containing array of tasks",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "tasks": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Task"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new task",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["title"],
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Buy groceries"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Task created",
+            "content": {
+              "application/json": {
+                "example": "Task created!"
+              }
+            }
+          },
+          "400": {
+            "description": "Missing title",
+            "content": {
+              "application/json": {
+                "example": {
+                  "error": "Task title is required"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/tasks/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "description": "Numeric ID of the task",
+          "schema": {
+            "type": "integer"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Get task by ID",
+        "responses": {
+          "200": {
+            "description": "Task object",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Task not found"
+          }
+        }
+      },
+      "put": {
+        "summary": "Update task",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["title"],
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "example": "Updated task title"
+                  },
+                  "done": {
+                    "type": "string",
+                    "description": "Accepts case-insensitive 'true' or 'false'",
+                    "example": "true"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Task updated",
+            "content": {
+              "application/json": {
+                "example": "Task updated!"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid title or invalid done value"
+          },
+          "404": {
+            "description": "Task not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete task",
+        "responses": {
+          "204": {
+            "description": "Task deleted successfully (no content)"
+          },
+          "404": {
+            "description": "Task not found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Task": {
+        "type": "object",
+        "required": ["id", "title", "done"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "title": {
+            "type": "string",
+            "example": "first task"
+          },
+          "done": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      }
+    }
+  }
+}

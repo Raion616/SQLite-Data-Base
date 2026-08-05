@@ -1,10 +1,15 @@
 {
-  "name": "${PROJECT_NAME}",
+  "name": "CRUD API with Data Base",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "Main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "private": true
+  "private": true,
+  "dependencies": {
+    "better-sqlite3": "^13.0.2",
+    "express": "^5.2.1",
+    "swagger-ui-express": "^5.0.1"
+  }
 }
