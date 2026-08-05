@@ -11,25 +11,25 @@ db.exec(`
     done INTEGER DEFAULT 0
   )
 `);
-const insertTask = db.prepare('INSERT INTO tasks (title) VALUES (?)');
+const insertTask = db.prepare('INSERT INTO tasks (title,done) VALUES (?,?)');
 const countTasks = db.prepare('SELECT COUNT(*) AS count FROM tasks');
 const { count } = countTasks.get();
 if (count === 0) {
-    insertTask.run('first task');
-    insertTask.run('second task');
-    insertTask.run('third Task');
+    insertTask.run('first task',1);
+    insertTask.run('second task',0);
+    insertTask.run('third Task',1);
 }
 const PORT = 3000;
 app.use(express.json());
 
 
 app.get('/tasks', (req, res) => {
-    res.send({ "tasks": tasks });
+    res.send(db.prepare('SELECT * FROM tasks').all());
 })
 
 app.get('/tasks/:id', (req, res) => {
     const taskId = parseInt(req.params.id,10);
-    const task = tasks.find(t => t.id === taskId);
+    const task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(taskId);
     if (!task) {
         return res.status(404).send('task ' + taskId + ' not found');
     }
@@ -50,13 +50,7 @@ app.post('/tasks', (req, res) => {
     if (!title) {
         return res.status(400).json({ error: 'Task title is required' });
     }
-    const Maxid = tasks.length>0 ? Math.max(...tasks.map(t => t.id)) : 0;
-    const newTask = {
-        id : Maxid + 1,
-        title : title,
-        done : false
-    }
-    tasks.push(newTask);
+    insertTask.run(title,0);
     res.status(201).json("Task created!");
 })
 
