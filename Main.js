@@ -13,6 +13,7 @@ db.exec(`
 `);
 const insertTask = db.prepare('INSERT INTO tasks (title,done) VALUES (?,?)');
 const countTasks = db.prepare('SELECT COUNT(*) AS count FROM tasks');
+const updateTask = db.prepare('UPDATE tasks SET title = ?, done = ? WHERE id = ?')
 const { count } = countTasks.get();
 if (count === 0) {
     insertTask.run('first task',1);
@@ -56,30 +57,31 @@ app.post('/tasks', (req, res) => {
 
 app.put('/tasks/:id', (req, res) => {
     const { id } = req.params;
-    const Task = tasks.find(t => t.id === parseInt(id));
+    const Task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
     if (!Task) {
         return res.status(404).json({ error: 'Task '+ id +' not found' });
     }
     let text = req.body.title;
     if ("done" in req.body) {
-        if(req.body.done.toUpperCase() === "True".toUpperCase()){Task.done = true;}
-        else if(req.body.done.toUpperCase() === "False".toUpperCase()){Task.done = false;}
+        if(req.body.done.toUpperCase() === "True".toUpperCase()){Task.done = 1;}
+        else if(req.body.done.toUpperCase() === "False".toUpperCase()){Task.done = 0;}
         else {return res.status(400).json({ error: 'please enter a valid done case' });}
     }
     if (!text) {
         return res.status(400).json({ error: 'Task title is required' });
     }
     Task.title = req.body.title;
+    updateTask.run(Task.title,Task.done,id);
     res.status(200).json("Task updated!");
 })
 
 app.delete('/tasks/:id', (req, res) => {
     const { id } = req.params;
-    let task = tasks.find(t => t.id === parseInt(id));
+    let task = db.prepare('SELECT * FROM tasks WHERE id = ?').get(id);
     if (!task) {
         return res.status(404).json({ error: 'Task not found' });
     }
-    tasks = tasks.filter(t => t.id !== parseInt(id));
+    db.prepare('DELETE FROM tasks WHERE id = ?').run(id);
     res.status(204).json(task[id]);
 })
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));
