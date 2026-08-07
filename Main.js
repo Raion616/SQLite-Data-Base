@@ -88,4 +88,4 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDocument));
 app.listen(PORT, () => {
     console.log(`Server listening on http://localhost:${PORT}`);
     console.log(`Swagger UI on http://localhost:${PORT}/api-docs`);
-});
+})
